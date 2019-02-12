@@ -1,0 +1,26 @@
+[accounts]
+[accounts.sms]
+type	= "twillio"
+account	= ""
+token	= ""
+number	= ""
+
+[options]
+[options.logger]
+version	= 1
+
+[options.logger.root]
+handlers = ["console"]
+level	= 10 #DEBUG
+
+[options.logger.formatters.brief]
+format	= "%(name)-12s %(levelname)-8s %(message)s"
+
+[options.logger.handlers.console]
+class	= "logging.StreamHandler"
+formatter = "brief"
+level	= 10 #DEBUG
+
+[options.editor]
+path	= "vim"
+mode	= "file"
