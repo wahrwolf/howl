@@ -1,26 +1,19 @@
-[accounts]
-[accounts.sms]
-type	= "twillio"
+[[modules]]
+name	= "howl.sms"
+class	= "TwilioSMS"
+
+[[accounts]]
+name	= "sms"
+module	= "twilio"
 account	= ""
 token	= ""
 number	= ""
 
+[[accounts]]
+name	= "bar"
+module	= "mock"
+
 [options]
-[options.logger]
-version	= 1
-
-[options.logger.root]
-handlers = ["console"]
-level	= 10 #DEBUG
-
-[options.logger.formatters.brief]
-format	= "%(name)-12s %(levelname)-8s %(message)s"
-
-[options.logger.handlers.console]
-class	= "logging.StreamHandler"
-formatter = "brief"
-level	= 10 #DEBUG
-
 [options.editor]
 path	= "vim"
 mode	= "file"
