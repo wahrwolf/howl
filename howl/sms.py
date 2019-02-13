@@ -27,7 +27,7 @@ class TwilioSMS(Messenger):
     def is_valid_inbox(inbox):
         """We do not allow any inbox (except None)
         """
-        return isinstance(inbox,str)
+        return isinstance(inbox,str) or inbox is None
 
     def lookup(self, recipient, auth):
         """Just mock a look up, but fail on invalid recipients
