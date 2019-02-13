@@ -4,14 +4,10 @@ class	= "TwilioSMS"
 
 [[accounts]]
 name	= "sms"
-module	= "twilio"
-account	= ""
-token	= ""
-number	= ""
-
-[[accounts]]
-name	= "bar"
-module	= "mock"
+module	= "howl.sms"
+params.account	= ""
+params.token	= ""
+params.number	= ""
 
 [options]
 [options.editor]

@@ -1,8 +1,10 @@
 #!/bin/env python3
+from os import system
 from logging import getLogger
 from logging.config import dictConfig
 from importlib import import_module
 from toml import load
+from fire import Fire
 
 from howl.defaults import logger_config as DEFAULT_LOGGER_CONFIG
 from howl.Messenger import Messenger
@@ -24,7 +26,7 @@ finally:
 # Init logger
 logger = getLogger()
 
-logger.debug("Loading up modules...")
+logger.debug("Loading up modules:")
 modules = {}
 
 # Load up modules
@@ -47,10 +49,29 @@ for plugin in CONFIG["modules"]:
         logger.debug(err)
         logger.debug(f"  -Failed to load {name}... Skiping it!")
     else:
-        modules[name] = None
+        modules[name] = class_object
         logger.debug(f"  -Installed {name}")
 
 # Load all accounts
-logger.debug("Loading up accounts...")
+accounts = {}
+logger.debug("Loading up accounts:")
 for account in CONFIG["accounts"]:
-    logger.debug(f"  {account['name']}: Loading up module {account['module']}")
+    name = account["name"]
+    module = account["module"]
+    params = account['params']
+
+    try:
+        logger.debug(f"  Connecting to {module}")
+        logger.debug(f"  Using: {params}")
+        account_object = modules[module](**params)
+        logger.debug(f"  -Init succesfull!")
+    except Exception as err:
+        logger.debug(err)
+        logger.debug(f"  -Failed to load {name}... Skiping it!")
+    else:
+        accounts[name] = account_object
+        logger.debug(f"  -Activated {name}")
+
+
+if __name__ == '__main__':
+    Fire(accounts)
