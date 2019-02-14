@@ -2,7 +2,7 @@
 """
 
 from tempfile import NamedTemporaryFile
-from logging import getLogger
+from logging import warning, info, debug
 from subprocess import call
 from os import environ
 from twilio.rest import Client
@@ -91,7 +91,6 @@ class TwilioSMS(Messenger):
     def create_message(self, recipient=None):
         """Create a text for a sms message using the default editor
         """
-        logger = getLogger()
         message_file = NamedTemporaryFile()
 
         editor = self.options["editor"]["path"]
@@ -99,14 +98,14 @@ class TwilioSMS(Messenger):
 
         message = ""
         try:
-            logger.debug(f"Generating message for {recipient} with '{editor}'")
+            debug(f"Generating message for {recipient} with '{editor}'")
             return_code = call(f"{editor} {message_file.name}", shell=True)
             if return_code == 0:
                 raw_message = message_file.file.read()
                 message = raw_message.decode(message_encoding)
         except Exception as err:
-            logger.debug(f"Unable to generate Message!")
-            logger.debug(err)
+            warning(f"Unable to generate Message!")
+            warning(err)
 
         return message
 

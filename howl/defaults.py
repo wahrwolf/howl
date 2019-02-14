@@ -7,7 +7,7 @@ from os import environ
 LOGGER_CONFIG = {
     "version" : 1,
     "formatters" : {
-        'brief': {'format': '[%(levelname)s]: %(message)s'}
+        'brief': {'format': '[%(funcName).10s@%(module)s]: %(levelname)-6s %(message)s'}
     }, "handlers" : {
         'console': {
             'class': 'logging.StreamHandler',

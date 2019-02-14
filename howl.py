@@ -1,7 +1,7 @@
 #!/bin/env python3
 """Multi protocol cli messenger powered by toml and fire
 """
-from logging import getLogger
+from logging import warning, info, debug
 from logging.config import dictConfig
 from importlib import import_module
 from toml import load
@@ -11,56 +11,55 @@ from howl.defaults import merge_dicts, LOGGER_CONFIG as DEFAULT_LOGGER_CONFIG, R
 from howl.Messenger import Messenger
 
 def load_plugins(modules_config):
-    logger = getLogger()
-    logger.debug("Loading up modules:")
+    info("Loading up plugins:")
     modules = {}
     # Load up modules
     for plugin in modules_config:
         name = plugin['name']
         class_name = plugin['class']
-        logger.debug(f"Installing plugin: [{name}]")
+        debug(f"  -Installing: [{name}]")
         try:
             module = import_module(name)
-            logger.debug("  -Loaded module")
+            debug("  -Loaded module")
             class_object = getattr(module, class_name)
-            logger.debug("  -Loaded class")
+            debug("  -Loaded class")
 
             if not Messenger in class_object.__bases__:
                 raise NotImplementedError
             else:
-                logger.debug("  -Plugin-Class is valid!")
+                debug("  -Plugin-Class is valid!")
 
         except Exception as err:
-            logger.debug(err)
-            logger.debug(f"  -Failed to load {name}... Skiping it!")
+            warning(err)
+            warning(f"  -Failed to load {name}... Skiping it!")
         else:
             modules[name] = class_object
-            logger.debug(f"  -Installed {name}")
+            info(f"  -Installed {name}")
     return modules
 
 def load_accounts(account_config, modules, options):
-    logger = getLogger()
     # Load all accounts
     accounts = {}
-    logger.debug("Loading up accounts:")
+    info("Loading up accounts:")
     for account in account_config:
         name = account["name"]
         module = account["module"]
 
         params = options
         params.update(account['params'])
+        debug(f"  -Activating {name}")
 
         try:
-            logger.debug(f"  Connecting to {module}")
-            logger.debug(f"  Using: {params}")
+            debug(f"  Connecting to {module}")
+            debug(f"  Using: {params}")
             account_object = modules[module](**params)
-            logger.debug(f"  -Init succesfull!")
+            debug(f"  -Init succesfull!")
         except Exception as err:
-            logger.debug(err)
-            logger.debug(f"  -Failed to load {name}... Skiping it!")
+            warning(err)
+            warning(f"  -Failed to load {name}... Skiping it!")
         else:
             accounts[name] = account_object
-            logger.debug(f"  -Activated {name}")
+            info(f"  -Activated {name}")
         finally:
             return accounts
 
@@ -69,18 +68,21 @@ def main(config_path=None):
     user_config = load(DEFAULT_OPTIONS["options"]["config"]["path"]
                        if config_path is None else config_path)
 
-    runtime_config = merge_dicts(DEFAULT_OPTIONS, user_config.get("options"))
+    runtime_config = merge_dicts(DEFAULT_OPTIONS, user_config.get("options", {}))
 
-    logger_config = merge_dicts(DEFAULT_LOGGER_CONFIG, runtime_config.get("logger", {}))
+    logger_config = merge_dicts(DEFAULT_LOGGER_CONFIG, user_config.get("logger", {}))
     dictConfig(logger_config)
 
-    # Init logger
-    logger = getLogger()
+    debug("Loaded the following user config:")
+    debug(user_config)
 
-    logger.debug("Expanded the default option ")
-    logger.debug(DEFAULT_OPTIONS)
-    logger.debug(runtime_config)
+    debug("Expanded the default runtime option")
+    debug(DEFAULT_OPTIONS)
+    debug(runtime_config)
 
+    debug("Expanded the default logger options")
+    debug(DEFAULT_LOGGER_CONFIG)
+    debug(logger_config)
 
     modules = load_plugins(user_config.get("modules"))
     accounts = load_accounts(user_config.get("accounts"), modules, runtime_config)
