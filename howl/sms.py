@@ -93,18 +93,17 @@ class TwilioSMS(Messenger):
         """
         logger = getLogger()
         message_file = NamedTemporaryFile()
-        try:
-            editor = self.options["editor"]["path"]
-        except KeyError:
-            editor = environ.get('EDITOR', "vi")
+
+        editor = self.options["editor"]["path"]
+        message_encoding = self.options["editor"]["encoding"]
 
         message = ""
         try:
             logger.debug(f"Generating message for {recipient} with '{editor}'")
             return_code = call(f"{editor} {message_file.name}", shell=True)
-            if return_code is 0:
+            if return_code == 0:
                 raw_message = message_file.file.read()
-                message = raw_message.decode(self.options["editor"]["encoding"])
+                message = raw_message.decode(message_encoding)
         except Exception as err:
             logger.debug(f"Unable to generate Message!")
             logger.debug(err)

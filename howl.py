@@ -1,12 +1,13 @@
 #!/bin/env python3
-from os import system
+"""Multi protocol cli messenger powered by toml and fire
+"""
 from logging import getLogger
 from logging.config import dictConfig
 from importlib import import_module
 from toml import load
 from fire import Fire
 
-from howl.defaults import logger_config as DEFAULT_LOGGER_CONFIG
+from howl.defaults import LOGGER_CONFIG as DEFAULT_LOGGER_CONFIG, RUNTIME_OPTIONS as DEFAULT_OPTIONS
 from howl.Messenger import Messenger
 
 def load_plugins(modules_config):
@@ -67,19 +68,19 @@ def main( config_path = "./howl.toml"):
     # Parse config file
     CONFIG = load(config_path)
 
-    try:
-        LOGGER_CONFIG = CONFIG["options"]["logger"]
-    except KeyError:
-        LOGGER_CONFIG = DEFAULT_LOGGER_CONFIG
-        # default fallback logging config
-    finally:
-        dictConfig(LOGGER_CONFIG)
+    runtime_config = DEFAULT_OPTIONS
+    runtime_config.update(CONFIG.get("options"))
+
+    logger_config = DEFAULT_LOGGER_CONFIG
+    logger_config.update(runtime_config.get("logger", {}))
+    dictConfig(logger_config)
+
 
     # Init logger
     logger = getLogger()
 
     modules = load_plugins(CONFIG.get("modules"))
-    accounts = load_accounts(CONFIG.get("accounts"), modules, CONFIG.get("options"))
+    accounts = load_accounts(CONFIG.get("accounts"), modules, runtime_config)
 
     Fire(accounts)
 
