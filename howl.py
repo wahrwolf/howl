@@ -7,7 +7,7 @@ from importlib import import_module
 from toml import load
 from fire import Fire
 
-from howl.defaults import LOGGER_CONFIG as DEFAULT_LOGGER_CONFIG, RUNTIME_OPTIONS as DEFAULT_OPTIONS
+from howl.defaults import merge_dicts, LOGGER_CONFIG as DEFAULT_LOGGER_CONFIG, RUNTIME_OPTIONS as DEFAULT_OPTIONS
 from howl.Messenger import Messenger
 
 def load_plugins(modules_config):
@@ -47,7 +47,7 @@ def load_accounts(account_config, modules, options):
         name = account["name"]
         module = account["module"]
 
-        params = {"options":options}
+        params = options
         params.update(account['params'])
 
         try:
@@ -68,16 +68,18 @@ def main( config_path = "./howl.toml"):
     # Parse config file
     CONFIG = load(config_path)
 
-    runtime_config = DEFAULT_OPTIONS
-    runtime_config.update(CONFIG.get("options"))
+    runtime_config = merge_dicts(DEFAULT_OPTIONS, CONFIG.get("options"))
 
-    logger_config = DEFAULT_LOGGER_CONFIG
-    logger_config.update(runtime_config.get("logger", {}))
+    logger_config = merge_dicts(DEFAULT_LOGGER_CONFIG, runtime_config.get("logger", {}))
     dictConfig(logger_config)
-
 
     # Init logger
     logger = getLogger()
+
+    logger.debug("Expanded the default option ")
+    logger.debug(DEFAULT_OPTIONS)
+    logger.debug(runtime_config)
+
 
     modules = load_plugins(CONFIG.get("modules"))
     accounts = load_accounts(CONFIG.get("accounts"), modules, runtime_config)

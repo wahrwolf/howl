@@ -20,8 +20,28 @@ LOGGER_CONFIG = {
 }
 
 RUNTIME_OPTIONS = {
-        "editor" : {
-            "encoding" : "utf-8",
-            "path" : environ.get("EDITOR", "vi")
+        "options" :{
+            "editor" : {
+                "encoding" : "utf-8",
+                "path" : environ.get("EDITOR", "vi")
+                }
             }
         }
+
+def merge_dicts(src_dict, target_dict):
+    if not isinstance(src_dict, dict) or not isinstance(target_dict, dict):
+        raise TypeError('Params of recursive_update should be dicts')
+
+    merged_dict = {}
+    merged_dict.update(src_dict)
+
+    for key in target_dict:
+        if isinstance(target_dict[key], dict) and isinstance(
+                src_dict.get(key), dict):
+            merged_dict[key] = merge_dicts(src_dict[key], target_dict[key])
+        else:
+            merged_dict[key] = target_dict[key]
+
+    return merged_dict
+
+
