@@ -85,7 +85,7 @@ def main(config_path=None):
     modules = load_plugins(user_config.get("modules"))
     accounts = load_accounts(user_config.get("accounts"), modules, runtime_config)
 
-    return accounts
+    Fire(accounts)
 
 if __name__ == '__main__':
-    Fire(main)
+    main()
