@@ -9,7 +9,8 @@ from fire import Fire
 from howl.defaults import logger_config as DEFAULT_LOGGER_CONFIG
 from howl.Messenger import Messenger
 
-def load_plugins(modules_config, logger):
+def load_plugins(modules_config):
+    logger = getLogger()
     logger.debug("Loading up modules:")
     modules = {}
     # Load up modules
@@ -36,14 +37,17 @@ def load_plugins(modules_config, logger):
             logger.debug(f"  -Installed {name}")
     return modules
 
-def load_accounts(account_config, modules, logger):
+def load_accounts(account_config, modules, options):
+    logger = getLogger()
     # Load all accounts
     accounts = {}
     logger.debug("Loading up accounts:")
     for account in account_config:
         name = account["name"]
         module = account["module"]
-        params = account['params']
+
+        params = {"options":options}
+        params.update(account['params'])
 
         try:
             logger.debug(f"  Connecting to {module}")
@@ -74,8 +78,8 @@ def main( config_path = "./howl.toml"):
     # Init logger
     logger = getLogger()
 
-    modules = load_plugins(CONFIG["modules"], logger)
-    accounts = load_accounts(CONFIG["accounts"], modules, logger)
+    modules = load_plugins(CONFIG.get("modules"))
+    accounts = load_accounts(CONFIG.get("accounts"), modules, CONFIG.get("options"))
 
     Fire(accounts)
 

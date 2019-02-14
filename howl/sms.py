@@ -1,12 +1,21 @@
+"""Collection of Messengers that provide a SMS interface
+"""
+
+from tempfile import NamedTemporaryFile
+from logging import getLogger
+from subprocess import call
+from os import environ
 from twilio.rest import Client
 from twilio.rest.api.v2010.account.message import MessageInstance
 from .Messenger import Messenger
 
 class TwilioSMS(Messenger):
-
-    def __init__(self, account, token, number=None):
+    """SMS Messenger using the Twilio service
+    """
+    def __init__(self, account, token, options=None, number=None):
         self.__account_id = account
         self.__token = token
+        self.options = options
 
         self.__number = number
 
@@ -27,7 +36,7 @@ class TwilioSMS(Messenger):
     def is_valid_inbox(inbox):
         """We do not allow any inbox (except None)
         """
-        return isinstance(inbox,str) or inbox is None
+        return isinstance(inbox, str) or inbox is None
 
     def lookup(self, recipient, auth):
         """Just mock a look up, but fail on invalid recipients
@@ -79,13 +88,35 @@ class TwilioSMS(Messenger):
 
         return  auth.messages.list(to=inbox)
 
+    def create_message(self, recipient=None):
+        """Create a text for a sms message using the default editor
+        """
+        logger = getLogger()
+        message_file = NamedTemporaryFile()
+        try:
+            editor = self.options["editor"]["path"]
+        except KeyError:
+            editor = environ.get('EDITOR', "vi")
+
+        message = ""
+        try:
+            logger.debug(f"Generating message for {recipient} with '{editor}'")
+            return_code = call(f"{editor} {message_file.name}", shell=True)
+            if return_code is 0:
+                raw_message = message_file.file.read()
+                message = raw_message.decode(self.options["editor"]["encoding"])
+        except Exception as err:
+            logger.debug(f"Unable to generate Message!")
+            logger.debug(err)
+
+        return message
+
     def deliver_message(self, payload, recipient, auth):
         """Abstract method to perform the actual sending of a message.
         To be implemented by all children
         Needs an auth object!
         """
         auth.messages.create(
-                body=payload,
-                to=recipient,
-                from_=self.__number)
-
+            body=payload,
+            to=recipient,
+            from_=self.__number)

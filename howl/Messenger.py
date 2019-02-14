@@ -59,10 +59,17 @@ class Messenger:
         Needs an auth object!
         """
 
+    def create_message(self,recipient=None):
+        """Abstract method to create a message for the given Messenger, e.g. using 
+        """
 
-    def send_message(self, message, recipient):
+    def send_message(self, recipient, message=None):
         assert self.is_valid_recipient(recipient), "Recipient invalid!"
-        assert self.is_valid_message(message), "Message contains invalid content!"
+
+        if message is None:
+            message = self.create_message(recipient)
+        else:
+            assert self.is_valid_message(message), "Message contains invalid content!"
 
         auth = self.connect()
 
