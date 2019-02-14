@@ -21,6 +21,9 @@ LOGGER_CONFIG = {
 
 RUNTIME_OPTIONS = {
         "options" :{
+            "config" : {
+                "path" : "./howl.toml",
+                },
             "editor" : {
                 "encoding" : "utf-8",
                 "path" : environ.get("EDITOR", "vi")

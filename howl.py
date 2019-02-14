@@ -64,11 +64,12 @@ def load_accounts(account_config, modules, options):
         finally:
             return accounts
 
-def main( config_path = "./howl.toml"):
+def main(config_path=None):
     # Parse config file
-    CONFIG = load(config_path)
+    user_config = load(DEFAULT_OPTIONS["options"]["config"]["path"]
+                       if config_path is None else config_path)
 
-    runtime_config = merge_dicts(DEFAULT_OPTIONS, CONFIG.get("options"))
+    runtime_config = merge_dicts(DEFAULT_OPTIONS, user_config.get("options"))
 
     logger_config = merge_dicts(DEFAULT_LOGGER_CONFIG, runtime_config.get("logger", {}))
     dictConfig(logger_config)
@@ -81,10 +82,10 @@ def main( config_path = "./howl.toml"):
     logger.debug(runtime_config)
 
 
-    modules = load_plugins(CONFIG.get("modules"))
-    accounts = load_accounts(CONFIG.get("accounts"), modules, runtime_config)
+    modules = load_plugins(user_config.get("modules"))
+    accounts = load_accounts(user_config.get("accounts"), modules, runtime_config)
 
-    Fire(accounts)
+    return accounts
 
 if __name__ == '__main__':
-    main()
+    Fire(main)
