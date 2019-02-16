@@ -1,10 +1,9 @@
 # Howl - the multi protocol messenger!
-The goal of this project is to provided a cli client for multiple message protocols.
+The goal of this project is to provide a cli client for multiple message protocols.
 
-This allows logging from bots or remote system using a simple plugin mechanism.
+This allows logging from bots or remote systems, using a simple plugin mechanism.
 
-With simple config files (powered by toml) multiple accounts can be maintained side by side withouth the hassle of to many parametrs
-
+With simple config files (powered by toml) multiple accounts can be maintained side by side without the hassle of too many parameters.
 
 ## Usage:
 Since this project is also powered by fire, you can access all methods defined on the accounts like:
@@ -37,12 +36,12 @@ path	= "/usr/bin/vim"
 
 # Contribution
 ## Messenger-Plugins
-All plugins need to inherited from howl.Messenger.Messenger and should implement all listed methods.
+All plugins need to inherit from howl.Messenger.Messenger and should implement all listed methods.
 To use the plugin, register it by adding it to the howl.toml under the modules section.
 
 ## Missing Protocols:
 - IRC
-- smtp (send only)
+- SMTP (send only)
 - IMAP/POP
 - XMPP
 - Telegram
